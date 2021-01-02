@@ -14,10 +14,7 @@ WHITE = (255, 255, 255)
 
 
 def main():
-    pygame.init()
-    pygame.display.set_caption("TicTacToe")
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    renderer = Renderer(screen)
+    renderer = Renderer()
 
     clock = pygame.time.Clock()
 
@@ -47,7 +44,6 @@ def main():
                             wait_for_new_game = True
 
         renderer.draw(game)
-        pygame.display.flip()
 
 
 def convert_coords(x, y):
@@ -55,8 +51,10 @@ def convert_coords(x, y):
 
 
 class Renderer:
-    def __init__(self, screen):
-        self.screen = screen
+    def __init__(self):
+        pygame.init()
+        pygame.display.set_caption("TicTacToe")
+        self._screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self._font = pygame.font.SysFont("monospace", 64)
 
     def draw(self, game: Game):
@@ -79,18 +77,20 @@ class Renderer:
             rendered_text = self._font.render(text, True, BLACK, WHITE)
             pos_x = (SCREEN_WIDTH - rendered_text.get_width()) / 2
             pos_y = (SCREEN_HEIGHT - rendered_text.get_height()) / 2
-            self.screen.blit(rendered_text, (pos_x, pos_y))
+            self._screen.blit(rendered_text, (pos_x, pos_y))
+
+        pygame.display.flip()
 
     def draw_board(self):
-        self.screen.fill((255, 255, 255))
-        pygame.draw.line(self.screen, BLACK, (CELL_WIDTH, 0), (CELL_WIDTH, SCREEN_HEIGHT))
-        pygame.draw.line(self.screen, BLACK, (2 * CELL_WIDTH, 0), (2 * CELL_WIDTH, SCREEN_HEIGHT))
-        pygame.draw.line(self.screen, BLACK, (0, CELL_HEIGHT), (SCREEN_WIDTH, CELL_HEIGHT))
-        pygame.draw.line(self.screen, BLACK, (0, 2 * CELL_HEIGHT), (SCREEN_WIDTH, 2 * CELL_HEIGHT))
+        self._screen.fill((255, 255, 255))
+        pygame.draw.line(self._screen, BLACK, (CELL_WIDTH, 0), (CELL_WIDTH, SCREEN_HEIGHT))
+        pygame.draw.line(self._screen, BLACK, (2 * CELL_WIDTH, 0), (2 * CELL_WIDTH, SCREEN_HEIGHT))
+        pygame.draw.line(self._screen, BLACK, (0, CELL_HEIGHT), (SCREEN_WIDTH, CELL_HEIGHT))
+        pygame.draw.line(self._screen, BLACK, (0, 2 * CELL_HEIGHT), (SCREEN_WIDTH, 2 * CELL_HEIGHT))
 
     def draw_o(self, row, col):
         pygame.draw.circle(
-            self.screen,
+            self._screen,
             BLACK,
             (
                 (row * CELL_WIDTH) + CELL_WIDTH / 2,
@@ -102,13 +102,13 @@ class Renderer:
 
     def draw_x(self, row, col):
         pygame.draw.line(
-            self.screen,
+            self._screen,
             BLACK,
             (row * CELL_WIDTH, col * CELL_HEIGHT),
             ((row + 1) * CELL_WIDTH, (col + 1) * CELL_HEIGHT),
         )
         pygame.draw.line(
-            self.screen,
+            self._screen,
             BLACK,
             ((row + 1) * CELL_WIDTH, col * CELL_HEIGHT),
             (row * CELL_WIDTH, (col + 1) * CELL_HEIGHT),
