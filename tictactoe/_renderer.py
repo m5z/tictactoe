@@ -46,7 +46,7 @@ class Renderer:
         pygame.display.flip()
 
     def draw_board(self):
-        self._screen.fill((255, 255, 255))
+        self._screen.fill(WHITE)
         pygame.draw.line(self._screen, BLACK, (CELL_WIDTH, 0), (CELL_WIDTH, SCREEN_HEIGHT))
         pygame.draw.line(self._screen, BLACK, (2 * CELL_WIDTH, 0), (2 * CELL_WIDTH, SCREEN_HEIGHT))
         pygame.draw.line(self._screen, BLACK, (0, CELL_HEIGHT), (SCREEN_WIDTH, CELL_HEIGHT))

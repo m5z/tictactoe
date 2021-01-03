@@ -1,3 +1,6 @@
+import time
+
+
 class Game:
     EMPTY = 0
     BLACK = 1
@@ -11,11 +14,13 @@ class Game:
     def __init__(self):
         self.board = [[Game.EMPTY, Game.EMPTY, Game.EMPTY] for _ in range(3)]
         self.turn = Game.BLACK
+        self.last_update = time.time()
 
     def move(self, i, j):
         if self.board[i][j] == Game.EMPTY:
             self.board[i][j] = self.turn
             self._switch_turn()
+            self.last_update = time.time()
             return True
         else:
             return False
@@ -27,12 +32,7 @@ class Game:
             self.turn = Game.BLACK
 
     def get_available_moves(self):
-        return [
-            (i, j)
-            for i, row in enumerate(self.board)
-            for j, current in enumerate(row)
-            if current == Game.EMPTY
-        ]
+        return [(i, j) for i, row in enumerate(self.board) for j, current in enumerate(row) if current == Game.EMPTY]
 
     def get_winner(self):
         placed = 0
@@ -44,7 +44,6 @@ class Game:
                         return current
         if placed == Game.BOARD_WIDTH * Game.BOARD_HEIGHT:
             return Game.DRAW
-
 
     def _check_line(self, i, j, current):
         if i + Game.WINNING_LINE_LENGTH <= Game.BOARD_HEIGHT:
