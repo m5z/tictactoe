@@ -16,22 +16,22 @@ class Player:
 
 class Tournament:
     def __init__(self, player_1_move_function, player_2_move_function):
-        self._player_1 = Player(1, player_1_move_function)
-        self._player_2 = Player(2, player_2_move_function)
-        self._game = Game()
+        self.player_1 = Player(1, player_1_move_function)
+        self.player_2 = Player(2, player_2_move_function)
+        self.game = Game()
 
     def run(self):
-        current_black = self._player_1
-        current_white = self._player_2
+        current_black = self.player_1
+        current_white = self.player_2
         while True:
-            if self._game.turn == Game.BLACK:
-                i, j = current_black.move_function(self._game.board)
+            if self.game.turn == Game.BLACK:
+                i, j = current_black.move_function(self.game.board)
             else:
-                i, j = current_white.move_function(self._game.board)
-            moved = self._game.move(i, j)
+                i, j = current_white.move_function(self.game.board)
+            moved = self.game.move(i, j)
             if moved:
                 # time.sleep(0.25)
-                winner = self._game.get_winner()
+                winner = self.game.get_winner()
                 if winner:
                     if winner == Game.BLACK:
                         current_black.score += 3
@@ -41,8 +41,8 @@ class Tournament:
                         current_black.score += 1
                         current_white.score += 1
                     current_black, current_white = current_white, current_black
-                    print(f"Player 1 score: {self._player_1.score}, Player 2 score: {self._player_2.score}")
-                    self._game = Game()
+                    print(f"Player 1 score: {self.player_1.score}, Player 2 score: {self.player_2.score}")
+                    self.game = Game()
 
     def start(self):
         thread = threading.Thread(target=self.run, daemon=True)
@@ -63,9 +63,9 @@ def display(tournament: Tournament):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        if last_update != tournament._game.last_update:
-            last_update = tournament._game.last_update
-            renderer.draw(tournament._game)
+        if last_update != tournament.game.last_update:
+            last_update = tournament.game.last_update
+            renderer.draw(tournament.game)
 
 
 def random_moves(game: Game):
