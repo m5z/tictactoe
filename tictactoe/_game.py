@@ -16,6 +16,13 @@ class Game:
         self.turn = Game.BLACK
         self.last_update = time.time()
 
+    def reset(self):
+        for i in range(Game.BOARD_HEIGHT):
+            for j in range(Game.BOARD_WIDTH):
+                self.board[i][j] = Game.EMPTY
+        self.turn = Game.BLACK
+        self.last_update = time.time()
+
     def move(self, i, j):
         if self.board[i][j] == Game.EMPTY:
             self.board[i][j] = self.turn

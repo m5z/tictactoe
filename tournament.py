@@ -1,9 +1,11 @@
+import pickle
 import random
 import threading
 import time
-
+import numpy as np
 import pygame
 
+from learning.q_table_learning import get_state
 from tictactoe import Renderer, Game
 
 
@@ -25,12 +27,12 @@ class Tournament:
         current_white = self.player_2
         while True:
             if self.game.turn == Game.BLACK:
-                i, j = current_black.move_function(self.game.board)
+                i, j = current_black.move_function(self.game)
             else:
-                i, j = current_white.move_function(self.game.board)
+                i, j = current_white.move_function(self.game)
             moved = self.game.move(i, j)
             if moved:
-                # time.sleep(0.25)
+                # time.sleep(0.1)
                 winner = self.game.get_winner()
                 if winner:
                     if winner == Game.BLACK:
@@ -72,8 +74,23 @@ def random_moves(game: Game):
     return random.randint(0, 2), random.randint(0, 2)
 
 
+def q_learning_table(game: Game):
+    with open('learning/Q.pickle', 'rb') as f:
+        Q = pickle.load(f)
+    state = get_state(game)
+    if state in Q:
+        action = np.argmax(Q[state])
+    else:
+        action = random.randint(0, 8)
+
+    i = action // Game.BOARD_HEIGHT
+    j = action % Game.BOARD_WIDTH
+
+    return i, j
+
+
 def main():
-    headless = Tournament(random_moves, random_moves)
+    headless = Tournament(random_moves, q_learning_table)
     headless.start()
     display(headless)
 
