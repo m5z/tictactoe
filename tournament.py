@@ -17,41 +17,65 @@ class Player:
 
 
 class Tournament:
-    def __init__(self, player_1_move_function, player_2_move_function):
+    def __init__(self, player_1_move_function, player_2_move_function, limit=10000, display=True):
         self.player_1 = Player(1, player_1_move_function)
         self.player_2 = Player(2, player_2_move_function)
+        self.limit = limit
+        self.display = display
         self.game = Game()
 
     def run(self):
         current_black = self.player_1
         current_white = self.player_2
-        while True:
+        played = 0
+        while played < self.limit:
+            self.move(current_black, current_white)
+
+            # time.sleep(0.1)
+            winner = self.game.get_winner()
+            if winner:
+                if winner == Game.BLACK:
+                    current_black.score += 1
+                elif winner == Game.WHITE:
+                    current_white.score += 1
+                # else:
+                #     current_black.score += 1
+                #     current_white.score += 1
+                current_black, current_white = current_white, current_black
+                if self.display:
+                    print(f"Player 1 score: {self.player_1.score}, Player 2 score: {self.player_2.score}")
+                self.game = Game()
+                played += 1
+        return self.player_1.score, self.player_2.score
+
+    def move(self, current_black, current_white):
+        for _ in range(10):
             if self.game.turn == Game.BLACK:
                 i, j = current_black.move_function(self.game)
             else:
                 i, j = current_white.move_function(self.game)
-            moved = self.game.move(i, j)
-            if moved:
-                # time.sleep(0.1)
-                winner = self.game.get_winner()
-                if winner:
-                    if winner == Game.BLACK:
-                        current_black.score += 3
-                    elif winner == Game.WHITE:
-                        current_white.score += 3
-                    else:
-                        current_black.score += 1
-                        current_white.score += 1
-                    current_black, current_white = current_white, current_black
-                    print(f"Player 1 score: {self.player_1.score}, Player 2 score: {self.player_2.score}")
-                    self.game = Game()
+            if self.game.move(i, j):
+                return
+
+        while True:
+            if self.game.move(random.randint(0, 2), random.randint(0, 2)):
+                return
 
     def start(self):
-        thread = threading.Thread(target=self.run, daemon=True)
-        thread.start()
+        if self.display:
+            thread = threading.Thread(target=self.run, daemon=True)
+            thread.start()
+        else:
+            return self.run()
+
+
+last_click = 0
+row, col = -1, -1
 
 
 def display(tournament: Tournament):
+    global last_click, row, col
+
     renderer = Renderer()
 
     clock = pygame.time.Clock()
@@ -65,6 +89,10 @@ def display(tournament: Tournament):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.MOUSEBUTTONUP:
+                last_click = time.time()
+                x, y = pygame.mouse.get_pos()
+                row, col = renderer.convert_coords(x, y)
         if last_update != tournament.game.last_update:
             last_update = tournament.game.last_update
             renderer.draw(tournament.game)
@@ -74,23 +102,41 @@ def random_moves(game: Game):
     return random.randint(0, 2), random.randint(0, 2)
 
 
-def q_learning_table(game: Game):
-    with open('learning/Q.pickle', 'rb') as f:
-        Q = pickle.load(f)
-    state = get_state(game)
-    if state in Q:
-        action = np.argmax(Q[state])
-    else:
-        action = random.randint(0, 8)
+class QLearningTable:
+    def __init__(self, Q):
+        if isinstance(Q, str):
+            with open('learning/Q.pickle', 'rb') as f:
+                Q = pickle.load(f)
+        self.Q = Q
 
-    i = action // Game.BOARD_HEIGHT
-    j = action % Game.BOARD_WIDTH
+    def move(self, game: Game):
+        state = get_state(game)
+        if state in self.Q:
+            action = np.argmax(self.Q[state])
+        else:
+            action = random.randint(0, 8)
 
-    return i, j
+        i = action // Game.BOARD_HEIGHT
+        j = action % Game.BOARD_WIDTH
+
+        return i, j
+
+
+class Human:
+    def __init__(self):
+        self.last_move = 0
+
+    def move(self, game: Game):
+        while True:
+            if last_click > self.last_move:
+                self.last_move = last_click
+                return row, col
+            time.sleep(0.1)
 
 
 def main():
-    headless = Tournament(random_moves, q_learning_table)
+    # headless = Tournament(Human().move, QLearningTable('learning/Q_0_0.6_0.4_0.25_100000.pickle').move)
+    headless = Tournament(random_moves, QLearningTable('learning/Q_0_0.6_0.4_0.25_100000.pickle').move)
     headless.start()
     display(headless)
 

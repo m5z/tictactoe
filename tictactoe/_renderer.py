@@ -57,8 +57,8 @@ class Renderer:
             self._screen,
             BLACK,
             (
-                (row * CELL_WIDTH) + CELL_WIDTH / 2,
-                (col * CELL_HEIGHT) + CELL_HEIGHT / 2,
+                (col * CELL_WIDTH) + CELL_WIDTH / 2,
+                (row * CELL_HEIGHT) + CELL_HEIGHT / 2,
             ),
             CELL_WIDTH / 2,
             1,
@@ -68,15 +68,15 @@ class Renderer:
         pygame.draw.line(
             self._screen,
             BLACK,
-            (row * CELL_WIDTH, col * CELL_HEIGHT),
-            ((row + 1) * CELL_WIDTH, (col + 1) * CELL_HEIGHT),
+            (col * CELL_WIDTH, row * CELL_HEIGHT),
+            ((col + 1) * CELL_WIDTH, (row + 1) * CELL_HEIGHT),
         )
         pygame.draw.line(
             self._screen,
             BLACK,
-            ((row + 1) * CELL_WIDTH, col * CELL_HEIGHT),
-            (row * CELL_WIDTH, (col + 1) * CELL_HEIGHT),
+            ((col + 1) * CELL_WIDTH, row * CELL_HEIGHT),
+            (col * CELL_WIDTH, (row + 1) * CELL_HEIGHT),
         )
 
     def convert_coords(self, x, y):
-        return int(x // CELL_WIDTH), int(y // CELL_HEIGHT)
+        return int(y // CELL_HEIGHT), int(x // CELL_WIDTH)

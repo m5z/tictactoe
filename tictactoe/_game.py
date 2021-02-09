@@ -32,6 +32,9 @@ class Game:
         else:
             return False
 
+    def is_valid_move(self, i, j):
+        return self.board[i][j] == Game.EMPTY
+
     def _switch_turn(self):
         if self.turn == Game.BLACK:
             self.turn = Game.WHITE
